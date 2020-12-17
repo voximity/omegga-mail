@@ -54,7 +54,9 @@ class Mail {
 
         // Initialize everyone, and add the hook for players joining
         this.omegga.getPlayers().forEach(async (p) => await this.initializePlayer(p.name));
-        this.omegga.on("join", async (p) => await this.initializePlayer(p.name));
+        this.omegga.on("join", async (p) => {
+            await this.checkUnreads(p.name);
+        });
 
         this.omegga.on("version", (v) => this.version = v);
 
