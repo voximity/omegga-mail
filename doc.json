@@ -1,0 +1,93 @@
+{
+    "name": "Mail",
+    "description": "Allows users to message each other when online or offline. Good for notifying of build issues when a user is away, and providing warning ahead of time.",
+    "author": "x",
+    "config": {
+        "anyone-can-message": {
+            "default": false,
+            "description": "Whether or not all users can message other users. When false, the authorized field must be set.",
+            "type": "boolean"
+        },
+        "authorized": {
+            "default": "",
+            "description": "A list of users authorized to start messaging, separated by commas. Typically, if anyone-can-message is off, this should be set to a list of your moderators/admins.",
+            "type": "string"
+        },
+        "unread-notification-interval": {
+            "default": 300,
+            "description": "How many seconds at a time to wait before resending the unread messages notification to each user. Set to 0 to disable.",
+            "type": "number"
+        },
+        "enable-replies": {
+            "default": true,
+            "description": "Whether or not people can reply to messages sent to them.",
+            "type": "boolean"
+        }
+    },
+    "commands": [
+        {
+            "name": "!m:pm",
+            "description": "Private message another player.",
+            "example": "!m:pm cake This is a terrible build. Fix it or I will remove it in 2 days.",
+            "args": [
+                {
+                    "name": "user",
+                    "description": "The name of the user to message.",
+                    "required": true
+                },
+                {
+                    "name": "message",
+                    "description": "The content of the message.",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "!m:mail",
+            "description": "Display your messages.",
+            "example": "!m:mail",
+            "args": []
+        },
+        {
+            "name": "!m:del",
+            "description": "Delete a message.",
+            "example": "!m:del 2",
+            "args": [
+                {
+                    "name": "message-index",
+                    "description": "The index of the message to delete, 1 being the most recent.",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "!m:reply",
+            "description": "Reply to a message.",
+            "example": "!m:reply 2 Don't ever speak to me or my son ever again",
+            "args": [
+                {
+                    "name": "message-index",
+                    "description": "The index of the message to reply to, 1 being most recent.",
+                    "required": true
+                },
+                {
+                    "name": "message",
+                    "description": "The content of the reply.",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "!m:reset",
+            "description": "Reset all messages. Must be done as host. Must pass yes to confirm.",
+            "example": "!m:reset yes",
+            "args": [
+                {
+                    "name": "confirmation",
+                    "description": "Must be `yes` to reset.",
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
