@@ -21,7 +21,7 @@ class Mail {
     }
 
     sendMessage(target, message) {
-        if (this.version == "a5") {
+        if (this.omegga.version == "a5") {
             this.omegga.whisper(target, message);
         } else {
             this.omegga.broadcast(`<b>[${target}]</b> ${message}`);
@@ -57,8 +57,6 @@ class Mail {
         this.omegga.on("join", async (p) => {
             await this.checkUnreads(p.name);
         });
-
-        this.omegga.on("version", (v) => this.version = v);
 
         this.omegga.on("chatcmd:m:pm", async (sender, target, ...messageList) => {
             // Check authority
