@@ -32,7 +32,7 @@ class Mail {
         const messages = await this.getOrInitialize(name);
         const unreads = messages.filter((m) => !m.read).length;
         if (unreads == 0) return;
-        this.sendMessage(name, `You have <b>${unreads} unread messages</b>. Check your messages with <code>!m:mail</code>.`);
+        this.sendMessage(name, `You have <b>${unreads} unread messages</b>. Check your messages with <code>/m:mail</code>.`);
     }
 
     checkUnreadsAll() {
@@ -58,7 +58,12 @@ class Mail {
             await this.checkUnreads(p.name);
         });
 
-        this.omegga.on("chatcmd:m:pm", async (sender, target, ...messageList) => {
+        const commandHook = (c, f) => {
+            this.omegga.on(`cmd:${c}`, f);
+            this.omegga.on(`chatcmd:${c}`, f);
+        }
+
+        commandHook("m:pm", async (sender, target, ...messageList) => {
             // Check authority
             if (!this.config["anyone-can-message"] && !this.authorized.includes(sender.toLowerCase()) && !this.omegga.getPlayer(sender).isHost()) return;
 
@@ -82,7 +87,7 @@ class Mail {
             // todo: check if target is online, if so, notify immediately of a new message
         });
 
-        this.omegga.on("chatcmd:m:mail", async (name) => {
+        commandHook("m:mail", async (name) => {
             const messages = await this.getOrInitialize(name);
             const unreads = messages.filter((m) => !m.read).length;
             this.sendMessage(name, `<color="0000ff">You have <b>${unreads} unread messages</b> and ${messages.length} total messages.</color>`);
@@ -93,25 +98,25 @@ class Mail {
                 m.read = true;
             });
 
-            this.sendMessage(name, `<color="4444ff">Delete a message with <code>!m:del #</code>${this.config["enable-replies"] ? ". Reply to one with <code>!m:reply # text</code>" : ""}.</color>`)
+            this.sendMessage(name, `<color="4444ff">Delete a message with <code>/m:del #</code>${this.config["enable-replies"] ? ". Reply to one with <code>/m:reply # text</code>" : ""}.</color>`)
 
             await this.store.set(name.toLowerCase(), messages);
         });
 
-        this.omegga.on("chatcmd:m:del", async (name, messageIndex) => {
+        commandHook("m:del", async (name, messageIndex) => {
             const messages = (await this.getOrInitialize(name)).sort((a, b) => b.date - a.date);
             if (messageIndex < 1 || messageIndex > messages.length) {
                 if (messages.length == 0)
                     this.sendMessage(name, "You have no messages to delete.");
                 else if (messages.length == 1)
-                    this.sendMessage(name, "You have 1 message to delete, so delete it with <code>!m:del 1</code>.");
+                    this.sendMessage(name, "You have 1 message to delete, so delete it with <code>/m:del 1</code>.");
                 else
                     this.sendMessage(name, `You have ${messages.length} total messages, so enter a number between 1 and ${messages.length} to delete one.`);
                 return;
             }
 
             if (!messages[messageIndex - 1].read) {
-                this.sendMessage(name, "That message is still unread. Read it with <code>!m:mail</code> first.");
+                this.sendMessage(name, "That message is still unread. Read it with <code>/m:mail</code> first.");
                 return;
             }
 
@@ -120,7 +125,7 @@ class Mail {
             this.sendMessage(name, `Message ${messageIndex} deleted.`);
         });
 
-        this.omegga.on("chatcmd:m:reply", async (name, messageIndex, ...replyList) => {
+        commandHook("m:reply", async (name, messageIndex, ...replyList) => {
             if (!this.config["enable-replies"]) return;
 
             const messages = (await this.getOrInitialize(name)).sort((a, b) => b.date - a.date);
@@ -128,14 +133,14 @@ class Mail {
                 if (messages.length == 0)
                     this.sendMessage(name, "You have no messages to reply to.");
                 else if (messages.length == 1)
-                    this.sendMessage(name, "You have 1 message to reply to, so reply to it with <code>!m:reply 1 message here</code>.");
+                    this.sendMessage(name, "You have 1 message to reply to, so reply to it with <code>/m:reply 1 message here</code>.");
                 else
                     this.sendMessage(name, `You have ${messages.length} total messages, so enter a number between 1 and ${messages.length} to reply to one.`);
                 return;
             }
 
             if (!messages[messageIndex - 1].read) {
-                this.sendMessage(name, "That message is still unread. Read it with <code>!m:mail</code> first.");
+                this.sendMessage(name, "That message is still unread. Read it with <code>/m:mail</code> first.");
                 return;
             }
 
@@ -156,7 +161,7 @@ class Mail {
             this.sendMessage(name, `Replied to <b>${oldMessage.sender}</b>.`);
         });
 
-        this.omegga.on("chatcmd:m:reset", async (name, confirm) => {
+        commandHook("m:reset", async (name, confirm) => {
             if (!this.omegga.getPlayer(name).isHost()) return;
             if (confirm != "yes") {
                 await this.sendMessage(name, "Are you sure? You must pass <code>yes</code> as an argument to reset.");
@@ -173,11 +178,11 @@ class Mail {
             }, this.config["unread-notification-interval"] * 1000);
             this.checkUnreadsAll();
         }
+
+        return {"registeredCommands": ["m:pm", "m:mail", "m:del", "m:reply", "m:reset"]};
     }
 
-    async stop() {
-
-    }
+    async stop() {}
 }
 
 module.exports = Mail;
