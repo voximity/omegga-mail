@@ -67,7 +67,7 @@ class Mail {
             // Check authority
             if (!this.config["anyone-can-message"] && !this.authorized.includes(sender.toLowerCase()) && !this.omegga.getPlayer(sender).isHost()) return;
 
-            const [_, target, content] = args.join(" ").match(/(?:"([^"]*)"|(\S+)) (.*)/);
+            const [_, target, content] = args.join(" ").match(/(?:"(.*)"|(\S+)) (.*)/);
 
             const targetInStore = await this.store.get(target.toLowerCase());
             if (targetInStore == undefined) {
