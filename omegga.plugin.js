@@ -63,9 +63,11 @@ class Mail {
             this.omegga.on(`chatcmd:${c}`, f);
         }
 
-        commandHook("m:pm", async (sender, target, ...messageList) => {
+        commandHook("m:pm", async (sender, ...args) => {
             // Check authority
             if (!this.config["anyone-can-message"] && !this.authorized.includes(sender.toLowerCase()) && !this.omegga.getPlayer(sender).isHost()) return;
+
+            const [_, target, content] = args.join(" ").match(/(?:"([^"]*)"|(\S+)) (.*)/);
 
             const targetInStore = await this.store.get(target.toLowerCase());
             if (targetInStore == undefined) {
@@ -74,7 +76,7 @@ class Mail {
             }
 
             const messageObject = {
-                "message": messageList.join(" "),
+                "message": content,
                 "sender": sender,
                 "date": Date.now(),
                 "read": false
